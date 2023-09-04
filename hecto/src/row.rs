@@ -27,13 +27,17 @@ impl Row {
             .skip(start)
             .take(end - start)
         {
-            result.push_str(grapheme)
+            if grapheme == "\t" {
+                result.push_str(" ");
+            } else {
+                result.push_str(grapheme)
+            }
         }
         result
     }
 
     pub fn len(&self) -> usize {
-       self.len 
+        self.len
     }
 
     pub fn is_empty(&self) -> bool {
