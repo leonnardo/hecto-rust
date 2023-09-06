@@ -132,7 +132,7 @@ impl Editor {
         match key {
             Key::Up => y = y.saturating_sub(1),
             Key::Down => {
-                if y < height - 1 {
+                if y < height {
                     y = y.saturating_add(1)
                 }
             }
