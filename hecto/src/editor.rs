@@ -29,7 +29,6 @@ impl StatusMessage {
             text: message,
         }
     }
-
 }
 
 pub struct Editor {
@@ -110,11 +109,13 @@ impl Editor {
                 return;
             }
 
-            if self.document.save().is_ok() {
-                self.status_message = StatusMessage::from("File saved successfully!".to_string());
-            } else {
-                self.status_message = StatusMessage::from("Error writing file!".to_string());
-            }
+            self.document.file_name = new_name;
+        }
+
+        if self.document.save().is_ok() {
+            self.status_message = StatusMessage::from("File saved successfully!".to_string());
+        } else {
+            self.status_message = StatusMessage::from("Error writing file!".to_string());
         }
     }
 
@@ -173,9 +174,9 @@ impl Editor {
                         x = row.len()
                     } else {
                         x = 0
-                    }   
+                    }
                 }
-            },
+            }
             Key::Right => {
                 if x < width {
                     x += 1
@@ -184,18 +185,20 @@ impl Editor {
                     x = 0;
                 }
             }
-            Key::PageUp => y =  if y > terminal_height {
-                y - terminal_height
-            } else {
-                0
-            },
+            Key::PageUp => {
+                y = if y > terminal_height {
+                    y - terminal_height
+                } else {
+                    0
+                }
+            }
             Key::PageDown => {
                 y = if y.saturating_add(terminal_height) < height {
                     y + terminal_height
                 } else {
                     height
                 }
-            },
+            }
             Key::Home => x = 0,
             Key::End => x = width,
             _ => (),
@@ -266,13 +269,24 @@ impl Editor {
     fn draw_status_bar(&self) {
         let mut status;
         let width = self.terminal.size().width as usize;
+        let modifier_indicator = if self.document.is_dirty() {
+            " (modified)"
+        } else {
+            ""
+        };
+
         let mut file_name = "[No Name]".to_string();
         if let Some(name) = &self.document.file_name {
             file_name = name.clone();
             file_name.truncate(20);
         }
 
-        status = format!("{} - {} lines", file_name, self.document.len());
+        status = format!(
+            "{} - {} lines{}",
+            file_name,
+            self.document.len(),
+            modifier_indicator
+        );
 
         let line_indicator = format!(
             "{}/{}",
